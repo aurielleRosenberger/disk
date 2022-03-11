@@ -2,6 +2,7 @@
 /* Date			Programmer			Description							*/
 /*																		*/
 /* 03/04/2022	ARosenberger		Initial creation of disk database	*/
+/* 03/11/2022	ARosenberger		Implementing INSERT statements		*/
 /*																		*/
 /************************************************************************/
 USE master;
@@ -26,15 +27,15 @@ GO
 CREATE TABLE disk_type (
 	disk_type_id	INT NOT NULL IDENTITY PRIMARY KEY,
 	description		VARCHAR(20) NOT NULL
-); --CD, DVD, Vinyl, 8track, cassette
+); --CD, DVD, Vinyl, 8track, Cassette
 CREATE TABLE genre (
 	genre_id		INT NOT NULL IDENTITY PRIMARY KEY,
 	description		VARCHAR(20) NOT NULL
-); --Country, Metal, Rock, Alt
+); --Country, Folk, Indie Rock, Alternative, etc.
 CREATE TABLE status (
 	status_id		INT NOT NULL IDENTITY PRIMARY KEY,
 	description		VARCHAR(20) NOT NULL
-); --Available, Onload, Damaged, Broken
+); --Available, On Loan, Damaged, Missing, Unavailable
 CREATE TABLE borrower (
 	borrower_id		INT NOT NULL IDENTITY PRIMARY KEY,
 	fname			NVARCHAR(60) NOT NULL,
@@ -56,3 +57,277 @@ CREATE TABLE disk_has_borrower (
 	borrowed_date				DATETIME2 NOT NULL,
 	returned_date				DATETIME2 NULL
 );
+
+-- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ --
+-- Start insert statements, insert data into disk_type
+-- c. Disk_type, Genre, & Status – insert 5+ rows into each using real-world data
+INSERT INTO disk_type
+	(description)
+VALUES
+	('CD'),
+	('Vinyl'),
+	('8track'),
+	('Cassette'),
+	('DVD');
+INSERT INTO genre
+	(description)
+VALUES
+	('Alternative'),
+	('Indie Rock'),
+	('Folk'),
+	('Electro Swing'),
+	('Metal');
+INSERT INTO status
+	(description)
+VALUES
+	('Available'),
+	('On Loan'),
+	('Damaged'),
+	('Missing'),
+	('Unavailable');
+-- e. 1. Insert 21 borrowers
+-- 1.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Nick', 'Nack', '760-000-0001');
+-- 2.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Ovaltine', 'Jenkins', '760-000-0002');
+-- 3.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Shmuel', 'Cohen', '760-000-0003');
+-- 4.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Galileo', 'Humpkins', '760-000-0004');
+-- 5.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Lavender', 'Gooms', '760-000-0005');
+-- 6.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Lemongrass', 'Gogulope', '760-000-0006');
+-- 7.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Methuselah', 'Honeysuckle', '760-000-0007');
+-- 8.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Chesterfield', 'McMillan', '760-000-0008');
+-- 9.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Longbranch', 'Pennywhistle', '760-000-0009');
+-- 10.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Scrooge', 'Jones', '760-000-0010');
+-- 11.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Hummingbird', 'Saltalamacchia', '760-000-0011');
+-- 12.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Doughnut', 'Holschtein', '760-000-0012');
+-- 13.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Ghee', 'Buttersnaps', '760-000-0013');
+-- 14.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Clementine', 'Woollysocks', '760-000-0014');
+-- 15.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Jingleheimer', 'Schmidt', '760-000-0015');
+-- 16.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Santonio', 'Holmes', '760-000-0016');
+-- 17.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Gurton', 'Buster', '760-000-0017');
+-- 18.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Burton', 'Guster', '760-000-0018');
+-- 19.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Yasmine', 'Bleeth', '760-000-0019');
+-- 20.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Karl', 'Rotmensen', '760-000-0020');
+-- 21.
+INSERT INTO borrower
+	(fname, lname, phone_num)
+VALUES
+	('Flapjack', 'Palmdale', '760-000-0021');
+-- e. 2. Delete only 1 borrower row using a WHERE clause
+DELETE borrower
+WHERE borrower_id = 21;
+-- d. 1. Insert at least 20 rows of disk data into the table using real-world disk names
+-- 1.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Feel Good Inc', '1/1/2005', 1, 1, 1);
+-- 2.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('DARE', '1/2/2005', 1, 3, 1);
+-- 3.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Momentary Bliss', '1/3/2020', 1, 1, 3);
+-- 4.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Good Bad Times', '1/4/2020', 2, 1, 2);
+-- 5.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Drive', '1/5/2014', 3, 1, 1);
+-- 6.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Janie in Love ', '1/6/2016', 3, 3, 1);
+-- 7.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Blue Vapor', '1/7/2018', 3, 1, 1);
+-- 8.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('For the Sun', '1/8/2019', 3, 1, 1);
+-- 9.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Firecrackers', '1/9/2015', 3, 1, 1);
+-- 10.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Nothing in My Heart', '1/10/2015', 3, 1, 1);
+-- 11.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Was It a Dream', '1/11/2015', 3, 1, 1);
+-- 12.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('END', '1/12/2021', 2, 1, 2);
+-- 13.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('THIS IS CHAI', '1/13/2021', 2, 1, 2);
+-- 14.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('NO MORE CAKE', '1/14/2020', 2, 1, 2);
+-- 15.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Jolie Coquine', '1/15/2012', 4, 2, 4);
+-- 16.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Lone Digger', '1/16/2015', 4, 1, 4);
+-- 17.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Comics', '1/17/2015', 4, 1, 4);
+-- 18.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Wonderland', '1/18/2016', 4, 2, 4);
+-- 19.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Detroit Rock City', '1/19/2008', 5, 1, 3);
+-- 20.
+INSERT disk
+	(disk_name, release_date, genre_id, status_id, disk_type_id)
+VALUES
+	('Suzy', '1/20/2012', 4, 1, 4);
+-- d. 2. Update only 1 disk row using a WHERE clause
+UPDATE disk
+SET release_date = '1/21/2022'
+WHERE disk_name = 'END';
+-- f. Insert borrowed rows DiskHasBorrowerTable
+INSERT disk_has_borrower
+	(borrower_id, disk_id, borrowed_date, returned_date)
+VALUES
+	(1, 1, '1-10-2019', '2-15-2019'),
+	(3, 5, '3-20-2019', '4-25-2019'),
+	(1, 1, '5-5-2019', '6-10-2019'),
+	(17, 15, '7-15-2019', NULL),
+	(14, 11, '8-20-2019', '9-25-2019'), -- 5.
+	(5, 3, '10-5-2019', '11-10-2019'),
+	(4, 3, '12-15-2019', '1-20-2020'),
+	(1, 9, '2-25-2020', '3-5-2020'),
+	(10, 1, '4-10-2020', '5-15-2020'),
+	(16, 1, '6-20-2020', '7-25-2020'), -- 10.
+	(1, 1, '8-5-2020', '9-10-2020'),
+	(18, 18, '10-15-2020', NULL),
+	(1, 8, '11-20-2020', '12-25-2020'),
+	(1, 20, '1-5-2021', '2-10-2021'),
+	(19, 13, '3-15-2021', '4-20-2021'), -- 15.
+	(2, 2, '5-25-2021', '6-5-2021'),
+	(10, 1, '7-10-2021', '8-15-2021'),
+	(7, 4, '9-20-2021', '10-25-2021'),
+	(7, 6, '11-5-2021', '12-10-2021'),
+	(1, 16, '1-15-2022', '2-20-2022') -- 20.
+;
+-- g. Create a query to list the disks that are on loan and have not been returned
+SELECT borrower_id AS Borrower_id, disk_id as Disk_id,
+	CAST(borrowed_date AS date) AS Borrowed_date, returned_date AS Return_date
+FROM disk_has_borrower
+WHERE returned_date IS NULL;
+
+-- After testing, push file to GitHub
