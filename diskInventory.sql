@@ -3,7 +3,7 @@
 /*																		*/
 /* 03/04/2022	ARosenberger		Initial creation of disk database	*/
 /* 03/11/2022	ARosenberger		Implementing INSERT statements		*/
-/*																		*/
+/* 03/18/2022	ARosenberger		Add report statements				*/
 /************************************************************************/
 USE master;
 GO
@@ -59,6 +59,7 @@ CREATE TABLE disk_has_borrower (
 );
 
 -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ --
+-- Project 3
 -- Start insert statements, insert data into disk_type
 -- c. Disk_type, Genre, & Status – insert 5+ rows into each using real-world data
 INSERT INTO disk_type
@@ -331,3 +332,72 @@ FROM disk_has_borrower
 WHERE returned_date IS NULL;
 
 -- After testing, push file to GitHub
+-- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ --
+-- Project 4
+-- 1. Show all disks in your database, the type and status.
+-- Use the disk, disk_type, genre and status tables.
+SELECT 'Disk Name' = disk_name, release_date,
+	disk_type.description, genre.description, status.description -- Check column names and format
+FROM disk
+JOIN disk_type
+	ON disk.disk_type_id = disk_type.disk_type_id
+JOIN genre
+	ON disk.genre_id = genre.genre_id
+JOIN status
+	ON disk.status_id = status.status_id
+ORDER BY disk_name
+;
+-- 2. Show all borrowed disks and who borrowed them.
+SELECT lname, fname, disk_name, borrowed_date, returned_date -- Check column names
+FROM disk_has_borrower
+JOIN borrower
+	ON disk_has_borrower.borrower_id = borrower.borrower_id
+JOIN disk
+	ON disk_has_borrower.disk_id = disk.disk_id
+ORDER BY lname
+;
+-- 3. Show the disks that have been borrowed more than once.
+SELECT disk_name, COUNT(*)
+FROM disk_has_borrower
+JOIN disk
+	ON disk_has_borrower.disk_id = disk.disk_id
+GROUP BY disk_name
+HAVING COUNT(*) > 1
+ORDER BY disk_name
+;
+-- 4. Show the disks outstanding or on loan and who took each disk.
+SELECT disk_name, borrowed_date, returned_date, lname, fname
+FROM disk
+JOIN disk_has_borrower
+	ON disk.disk_id = disk_has_borrower.disk_id
+JOIN borrower
+	ON borrower.borrower_id = disk_has_borrower.borrower_id
+WHERE returned_date IS NULL
+ORDER BY disk_name
+;
+GO
+-- 5. Create a view called View_Borrower_No_Loans that shows the borrowers who have not borrowed a disk. Include the borrower_id in the view definition but do not display the id in your output.
+-- Could be done with a correlated subquery using exists, non-correlated subquery using in, or and outer join.
+CREATE VIEW View_Borrower_No_Loans
+AS
+	SELECT borrower_id, lname, fname
+	FROM borrower
+	WHERE borrower_id NOT IN
+		(SELECT DISTINCT borrower_id
+		FROM disk_has_borrower)
+;
+GO
+SELECT lname, fname -- Check column names
+FROM View_Borrower_No_Loans
+ORDER BY lname, fname
+;
+-- 6. Show the borrowers who have borrowed more than 1 disk.
+SELECT lname, fname, COUNT(disk_id) -- Check column names
+FROM disk_has_borrower
+JOIN borrower
+	ON borrower.borrower_id = disk_has_borrower.borrower_id
+GROUP BY lname, fname
+HAVING COUNT(*) > 1
+ORDER BY lname, fname
+
+-- Push to GitHub
