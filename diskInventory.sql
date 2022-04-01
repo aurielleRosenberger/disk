@@ -4,6 +4,11 @@
 /* 03/04/2022	ARosenberger		Initial creation of disk database	*/
 /* 03/11/2022	ARosenberger		Implementing INSERT statements		*/
 /* 03/18/2022	ARosenberger		Add report statements				*/
+/* 03/28/2022	ARosenberger		Add stored PROCs to INSERT and 		*/
+/*									UPDATE disk_has_borrower			*/
+/* 03/30/2022	ARosenberger		Add SP's to INSERT, UPDATE and 		*/
+/*									DELETE borrower and disk			*/
+/*																		*/
 /************************************************************************/
 USE master;
 GO
@@ -401,3 +406,221 @@ HAVING COUNT(*) > 1
 ORDER BY lname, fname
 
 -- Push to GitHub
+
+-- Chapter 15 Lab (28, March 2022 Monday)
+-- Create 2 stored procedures:
+	-- Insert into diskHasBorrower. Parameters for all columns except the PK.
+	-- Update to diskHasBorrower. Accept all columns & updates based on the PK. Set a default value of null for the return date.
+	-- Include drop logic, error checking, and execution statements (1 that works & 1 that generates a user error).
+	-- Grant execute permission to your disk_inventory user.
+
+USE diskInventoryAR;
+-- Create PROC sp_ins_disk_has_borrower
+DROP PROC IF EXISTS sp_ins_disk_has_borrower;
+GO
+
+CREATE PROC sp_ins_disk_has_borrower
+	@borrower_id INT, @disk_id INT, @borrowed_date DATETIME2, @returned_date DATETIME2 = NULL
+AS
+BEGIN TRY
+	INSERT disk_has_borrower
+		(borrower_id, disk_id, borrowed_date, returned_date)
+	VALUES
+		(@borrower_id, @disk_id, @borrowed_date, @returned_date);
+END TRY
+BEGIN CATCH
+	PRINT 'An error occurred.'
+	PRINT 'Message: ' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+END CATCH
+GO
+GRANT EXEC ON sp_ins_disk_has_borrower TO diskUserar;
+GO
+sp_ins_disk_has_borrower 2, 3, '3-27-2022', '3-28-2022'
+GO
+sp_ins_disk_has_borrower 4, 5, '3-27-2022'
+GO
+sp_ins_disk_has_borrower 44, 5, '3-27-2022'
+GO
+
+DROP PROC IF EXISTS sp_upd_disk_has_borrower;
+GO
+CREATE PROC sp_upd_disk_has_borrower
+	@disk_has_borrower_id INT, @borrower_id INT, @disk_id INT, @borrowed_date DATETIME2, @returned_date DATETIME2 = NULL
+AS
+BEGIN TRY
+	UPDATE disk_has_borrower
+	SET borrower_id = @borrower_id,
+		disk_id = @disk_id,
+		borrowed_date = @borrowed_date,
+		returned_date = @returned_date
+	WHERE disk_has_borrower_id = @disk_has_borrower_id;
+END TRY
+BEGIN CATCH
+	PRINT 'An error occurred.'
+	PRINT 'Message: ' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+END CATCH
+GO
+GRANT EXEC ON sp_upd_disk_has_borrower TO diskUserar;
+GO
+DECLARE @today DATETIME2 = GETDATE();
+EXEC sp_upd_disk_has_borrower 25, 2, 3, '3-13-2022', @today;
+GO
+sp_upd_disk_has_borrower 25, 2, 3, '2-22-2022';
+GO
+sp_upd_disk_has_borrower 25, 44, 3, '2-22-2022';
+GO
+-- Push to GitHub
+
+-- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~-- ~~ -- ~~ -- ~~ -- ~~
+-- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~-- ~~ -- ~~ -- ~~ -- ~~
+-- Create Insert, Update, and Delete stored procedures for the disk table. Update procedure accepts input parameters for all columns. Insert accepts all columns as input parameters except for identity fields. Delete accepts a primary key value for delete.
+DROP PROC IF EXISTS sp_ins_disk;
+GO
+CREATE PROC sp_ins_disk
+	@disk_name NVARCHAR(60), @release_date DATE, @genre_id INT, @status_id INT, @disk_type_id INT
+AS
+	BEGIN TRY
+		INSERT disk
+		(disk_name, release_date, genre_id, status_id, disk_type_id)
+		VALUES
+		(@disk_name, @release_date, @genre_id, @status_id, @disk_type_id);
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurrred.';
+		PRINT 'Message: ' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+-- Add grant permissions
+GRANT EXECUTE ON sp_ins_disk TO diskUserar;
+GO
+EXEC sp_ins_disk 'Toxic', '2/2/2003', 4, 1, 1
+GO -- Works without error
+EXEC sp_ins_disk 'Toxic', '2/2/2003', 4, 1, NULL
+GO -- Generates controlled error
+
+DROP PROC IF EXISTS sp_upd_disk;
+GO
+CREATE PROC sp_upd_disk
+		@disk_id INT, @disk_name NVARCHAR(60), @release_date DATE, @genre_id INT, @status_id INT, @disk_type_id INT
+AS
+	BEGIN TRY
+		UPDATE disk
+		SET disk_name = @disk_name,
+			release_date = @release_date,
+			genre_id = @genre_id,
+			status_id = @status_id,
+			disk_type_id = @disk_type_id
+		WHERE disk_id = @disk_id;
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurrred.';
+		PRINT 'Message: ' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+-- Add grant permissions
+GRANT EXECUTE ON sp_upd_disk TO diskUserar;
+GO
+EXEC sp_upd_disk 21, 'Toxic', '2003-1-1', 5, 4, 3
+GO -- Updates without error
+EXEC sp_upd_disk 21, 'Toxic', NULL, 5, 4, 3
+GO -- Controlled error
+
+DROP PROC IF EXISTS sp_del_disk;
+GO
+CREATE PROC sp_del_disk
+	@disk_id INT
+AS
+	BEGIN TRY
+		DELETE FROM [dbo].[disk]
+			WHERE disk_id = @disk_id;
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurrred.';
+		PRINT 'Message: ' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+-- Add permissions
+GRANT EXECUTE ON sp_del_disk TO diskUserar;
+GO
+EXEC sp_del_disk 21; -- Works without error
+GO
+EXEC sp_del_disk 3; -- Controlled error
+GO
+-- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~-- ~~ -- ~~ -- ~~ -- ~~
+-- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~ -- ~~-- ~~ -- ~~ -- ~~ -- ~~
+-- Create Insert, Update, and Delete stored procedures for the borrower table. Update procedure accepts input parameters for all columns. Insert accepts all columns as input parameters except for identity fields. Delete accepts a primary key value for delete
+DROP PROC IF EXISTS sp_ins_borrower
+GO
+CREATE PROC sp_ins_borrower
+	@fname NVARCHAR(60), @lname NVARCHAR(60), @phone_num VARCHAR(15)
+AS
+	BEGIN TRY
+		INSERT borrower
+		(fname, lname, phone_num)
+		VALUES
+		(@fname, @lname, @phone_num);
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurred.';
+		PRINT 'Message: ' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+-- Add Grant Permissions
+GRANT EXECUTE ON sp_ins_borrower TO diskUserar;
+GO
+EXEC sp_ins_borrower 'Gusjay', 'Gupta', '760-000-0022'
+GO -- Updates without error
+EXEC sp_ins_borrower 'Gusjay', 'Gupta', NULL
+GO -- Controlled error
+
+DROP PROC IF EXISTS sp_upd_borrower
+GO
+CREATE PROC sp_upd_borrower
+	@borrower_id INT, @fname NVARCHAR(60), @lname NVARCHAR(60), @phone_num VARCHAR(15)
+AS
+	BEGIN TRY
+		UPDATE borrower
+		SET fname = @fname,
+			lname = @lname,
+			phone_num = @phone_num
+		WHERE borrower_id = @borrower_id;
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurred.';
+		PRINT 'Message: ' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+-- Add grant permissions
+GRANT EXECUTE ON sp_upd_borrower TO diskUserar;
+GO
+EXEC sp_upd_borrower 22, 'Mission', 'Figgs', '760-000-0022'
+GO -- Updates without error
+EXEC sp_upd_borrower 22, 'Mission', 'Figgs',  NULL
+GO -- Controlled error
+
+DROP PROC IF EXISTS sp_del_borrower;
+GO
+
+CREATE PROC sp_del_borrower
+@borrower_id INT
+AS
+	BEGIN TRY
+		DELETE FROM borrower
+			WHERE borrower_id = @borrower_id;
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurred.';
+		PRINT 'Message: ' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+-- Add grant permissions
+GRANT EXECUTE ON sp_del_borrower TO diskUserar;
+GO
+EXEC sp_del_borrower 22;
+GO -- Deletes without error
+EXEC sp_del_borrower 19;
+GO -- Controlled error
+
