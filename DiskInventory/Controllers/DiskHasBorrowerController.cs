@@ -25,7 +25,7 @@ namespace DiskInventory.Controllers
         {
             ViewBag.Action = "Add";
             DiskHasBorrowerViewModel checkOut = new DiskHasBorrowerViewModel();
-            checkOut.BorrowedDate = DateTime.Now;
+            checkOut.CurrentVM.BorrowedDate = DateTime.Now;
             checkOut.Disks = context.Disks.OrderBy(d => d.DiskName).ToList();
             checkOut.Borrowers = context.Borrowers.OrderBy(b => b.Lname).ToList();
             return View("Edit", checkOut);
@@ -38,11 +38,11 @@ namespace DiskInventory.Controllers
             DiskHasBorrowerViewModel checkOut = new DiskHasBorrowerViewModel();
             checkOut.Disks = context.Disks.OrderBy(d => d.DiskName).ToList();
             checkOut.Borrowers = context.Borrowers.OrderBy(b => b.Lname).ToList();
-            checkOut.DiskHasBorrowerId = diskhasborrower.DiskHasBorrowerId;
-            checkOut.BorrowerId = diskhasborrower.DiskId;
-            checkOut.DiskId = diskhasborrower.DiskId;
-            checkOut.BorrowedDate = diskhasborrower.BorrowedDate;
-            checkOut.ReturnedDate = diskhasborrower.ReturnedDate;
+            checkOut.CurrentVM.DiskHasBorrowerId = diskhasborrower.DiskHasBorrowerId;
+            checkOut.CurrentVM.BorrowerId = diskhasborrower.DiskId;
+            checkOut.CurrentVM.DiskId = diskhasborrower.DiskId;
+            checkOut.CurrentVM.BorrowedDate = diskhasborrower.BorrowedDate;
+            checkOut.CurrentVM.ReturnedDate = diskhasborrower.ReturnedDate;
             return View(checkOut);
         }
         [HttpPost]
@@ -51,23 +51,28 @@ namespace DiskInventory.Controllers
             DiskHasBorrower checkOut = new DiskHasBorrower();
             if (ModelState.IsValid)
             {
-                checkOut.DiskHasBorrowerId = diskhasborrowerviewmodel.DiskHasBorrowerId;
-                checkOut.BorrowerId = diskhasborrowerviewmodel.BorrowerId;
-                checkOut.DiskId = diskhasborrowerviewmodel.DiskId;
-                checkOut.BorrowedDate = diskhasborrowerviewmodel.BorrowedDate;
-                checkOut.ReturnedDate = diskhasborrowerviewmodel.ReturnedDate;
+                checkOut.DiskHasBorrowerId = diskhasborrowerviewmodel.CurrentVM.DiskHasBorrowerId;
+                checkOut.BorrowerId = diskhasborrowerviewmodel.CurrentVM.BorrowerId;
+                checkOut.DiskId = diskhasborrowerviewmodel.CurrentVM.DiskId;
+                checkOut.BorrowedDate = diskhasborrowerviewmodel.CurrentVM.BorrowedDate;
+                checkOut.ReturnedDate = diskhasborrowerviewmodel.CurrentVM.ReturnedDate;
                 if (checkOut.DiskHasBorrowerId == 0)
                 {
                     context.DiskHasBorrowers.Add(checkOut);
+                    TempData["message"] = "Checkout added!";
                 }
                 else
                 {
                     context.DiskHasBorrowers.Update(checkOut);
+                    TempData["message"] = "Checkout updated!";
+
                 }
                 context.SaveChanges();
                 return RedirectToAction("Index", "DiskHasBorrower");
             }
-            ViewBag.Action = (diskhasborrowerviewmodel.DiskHasBorrowerId == 0) ? "Add" : "Edit";
+            ViewBag.Action = (diskhasborrowerviewmodel.CurrentVM.DiskHasBorrowerId == 0) ? "Add" : "Edit";
+            diskhasborrowerviewmodel.Disks = context.Disks.OrderBy(d => d.DiskName).ToList();
+            diskhasborrowerviewmodel.Borrowers = context.Borrowers.OrderBy(b => b.Lname).ToList();
             return View(diskhasborrowerviewmodel);
         }
     }
