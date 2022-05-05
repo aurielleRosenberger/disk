@@ -27,7 +27,8 @@
         @foreach (var diskhasborrower in Model)
         {
             <tr>
-                <td>@diskhasborrower.Disk.DiskId</td>
+                @*<td>@diskhasborrower.Disk.DiskId</td>*@
+                <td>@diskhasborrower.Disk.DiskName</td>
                 <td>@diskhasborrower.Borrower.Lname</td>
                 <td>@diskhasborrower.Borrower.Fname</td>
                 <td>@diskhasborrower.BorrowedDate?.ToString("dd MMM yyyy")</td>

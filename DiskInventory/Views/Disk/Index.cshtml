@@ -5,6 +5,12 @@
 <h1>@ViewBag.Title</h1>
 
 <a asp-controller="Disk" asp-action="Add">Add New Disk</a>
+@if (TempData.Keys.Contains("message"))
+{
+    <h4 class="bg-info text-center text-white p-2">
+        @TempData["message"]
+    </h4>
+}
 
 <table class="table table-bordered table-striped">
     <thead>
@@ -23,7 +29,7 @@
             <tr>
                 <td>@disk.DiskId</td>
                 <td>@disk.DiskName</td>
-                <td>@disk.ReleaseDate</td>
+                <td>@disk.ReleaseDate.ToString("dd MMM yyyy")</td>
                 <td>@disk.Status.Description</td>
                 <td>@disk.Genre.Description</td>
                 <td>@disk.DiskType.Description</td>
